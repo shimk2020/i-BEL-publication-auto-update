@@ -42,7 +42,7 @@ st.markdown(f"""
 <div style="font-size: 40px; font-weight: bold; margin-bottom: 10px; line-height: 1.4;">
     Published International Journal Papers
     <br>
-    <span style="font-size: 30px; font-weight: normal;">
+    <span style="font-size: 30px; font-weight: bold;">
         (<a href="{google_scholar_link}" target="_blank" style="text-decoration: none; color: #0068c9;">Google Scholar</a>)
     </span>
 </div>
@@ -92,5 +92,6 @@ if papers:
 
 else:
     st.write("No publications found.")
+
 
 
