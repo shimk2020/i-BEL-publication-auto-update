@@ -43,21 +43,45 @@ today = datetime.date.today().strftime("%Y-%m-%d")
 st.caption(f"Last updated: {today}")
 # --------------------------
 
+# 3. Get Data
+papers = get_papers(MY_AUTHOR_ID)
+
+# Header
+google_scholar_link = "https://scholar.google.com/citations?hl=en&user=_d7FrPoAAAAJ&view_op=list_works&sortby=pubdate"
+st.markdown(f"### Published International Journal Papers ([Google Scholar]({google_scholar_link}))")
+st.caption(f"Last updated: {datetime.date.today().strftime('%Y-%m-%d')}")
+
 if papers:
     for paper in papers:
         title = paper.get('title', 'Untitled')
         url = paper.get('url', '#')
-        venue = paper.get('venue', 'Journal/Conference')
+        venue = paper.get('venue', 'Journal')
         year = paper.get('year', '')
         
         # Format Authors
         author_list = [auth.get('name') for auth in paper.get('authors', [])]
         author_str = ", ".join(author_list)
         
-        # Display
-        st.markdown(f"### [{title}]({url})")
-        st.markdown(f"👤 **{author_str}**")
-        st.markdown(f"📅 {year} | 🏛️ *{venue}*")
-        st.divider()
+        # --- COMPACT HTML DESIGN ---
+        # We use HTML to force tighter spacing and specific font sizes
+        st.markdown(f"""
+        <div style="margin-bottom: 15px;">
+            <a href="{url}" target="_blank" style="font-size: 18px; font-weight: bold; color: #0068c9; text-decoration: none;">
+                {title}
+            </a>
+            <br>
+            <span style="font-size: 16px; color: #333;">{author_str}</span>
+            <br>
+            <span style="font-size: 14px; color: #666; font-style: italic;">
+                {venue} • {year}
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Optional: Add a very faint line between items (or remove for maximum compactness)
+        st.markdown("""<hr style="margin: 5px 0; border: none; border-top: 1px solid #f0f0f0;">""", unsafe_allow_html=True)
+
 else:
     st.write("No publications found.")
+    
+
