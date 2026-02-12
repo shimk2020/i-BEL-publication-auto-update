@@ -1,15 +1,17 @@
+#업데이트 귀찮... 자동으로 레츠고
+
 import streamlit as st
 import requests
-#업데이트 귀찮... 자동으로 레츠고
-# 1. Define the function to fetch and sort papers
-@st.cache_data(ttl=43200) # Update cache every 12 hours
+
+# 1. Fetch data from Semantic Scholar
+@st.cache_data(ttl=43200) # Cache for 12 hours
 def get_papers(author_id):
     url = f"https://api.semanticscholar.org/graph/v1/author/{author_id}/papers"
     
-    # We ask for: Title, Year, Citation Count, URL, and Venue (Journal name)
+    # ASK FOR SPECIFIC FIELDS: title, date, venue, URL, and AUTHORS
     params = {
-        "fields": "title,year,citationCount,url,venue",
-        "limit": 100 
+        "fields": "title,year,publicationDate,venue,authors,url,citationCount",
+        "limit": 100
     }
     
     try:
@@ -18,37 +20,46 @@ def get_papers(author_id):
             data = response.json().get('data', [])
             
             # --- SORTING LOGIC ---
-            # Sort by 'year' in descending order (Newest first). 
-            # If a paper has no year (None), treat it as 0 so it goes to the bottom.
-            sorted_data = sorted(data, key=lambda x: x.get('year') or 0, reverse=True)
-            
+            # Sort by specific 'publicationDate' (YYYY-MM-DD). 
+            # If date is missing, use 'year'. If both missing, use '0000'.
+            # reverse=True means Newest First.
+            sorted_data = sorted(
+                data, 
+                key=lambda x: x.get('publicationDate') or str(x.get('year')) or '0000-00-00', 
+                reverse=True
+            )
             return sorted_data
         else:
             return []
     except Exception:
         return []
 
-# 2. 교수님 Author ID
+# 2. Author ID
 MY_AUTHOR_ID = "6506039"
 
 st.title("Research Publications")
 st.caption("Automatically updated via Semantic Scholar")
 
-# 3. Fetch and Display
+# 3. Get Data
 papers = get_papers(MY_AUTHOR_ID)
 
 if papers:
     for paper in papers:
+        # A. Extract Info
         title = paper.get('title', 'Untitled')
-        year = paper.get('year', 'N/A')
+        url = paper.get('url', '#')
         venue = paper.get('venue', 'Journal/Conference')
-        citations = paper.get('citationCount', 0)
-        link = paper.get('url', '#')
+        year = paper.get('year', '')
         
-        # Display layout
-        st.subheader(f"[{title}]({link})")
-        st.markdown(f"**{year}** | *{venue}*")
-        st.markdown(f"Cited by: {citations}")
+        # B. Format Authors (List -> String)
+        # Example: "Gahyun Baek, J. Smith, A. Doe"
+        author_list = [auth.get('name') for auth in paper.get('authors', [])]
+        author_str = ", ".join(author_list)
+        
+        # C. Display nicely
+        st.markdown(f"### [{title}]({url})")
+        st.markdown(f"👤 **{author_str}**")
+        st.markdown(f"📅 {year} | 🏛️ *{venue}*")
         st.divider()
 else:
     st.write("No publications found.")
