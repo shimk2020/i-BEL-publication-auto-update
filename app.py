@@ -38,7 +38,7 @@ papers = get_papers(MY_AUTHOR_ID)
 google_scholar_link = "https://scholar.google.com/citations?hl=en&user=_d7FrPoAAAAJ&view_op=list_works&sortby=pubdate"
 
 st.markdown(f"""
-<div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
+<div style="font-size: 30px; font-weight: bold; margin-bottom: 5px;">
     Published International Journal Papers (<a href="{google_scholar_link}" target="_blank" style="text-decoration: none; color: #0068c9;">Google Scholar</a>)
 </div>
 """, unsafe_allow_html=True)
@@ -85,3 +85,4 @@ if papers:
 
 else:
     st.write("No publications found.")
+
