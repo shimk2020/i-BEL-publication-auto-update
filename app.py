@@ -9,7 +9,7 @@ import datetime
 def get_papers(author_id):
     url = f"https://api.semanticscholar.org/graph/v1/author/{author_id}/papers"
     
-    # We need 'externalIds' to find the DOI
+    # Request 'externalIds' to get the DOI
     params = {
         "fields": "title,year,publicationDate,venue,authors,url,citationCount,externalIds",
         "limit": 100
@@ -30,7 +30,7 @@ def get_papers(author_id):
     except Exception:
         return []
 
-# 2. Your Author ID
+# 2. 교수님 Author ID
 MY_AUTHOR_ID = "6506039"
 papers = get_papers(MY_AUTHOR_ID)
 
@@ -39,10 +39,10 @@ google_scholar_link = "https://scholar.google.com/citations?hl=en&user=_d7FrPoAA
 today_date = datetime.date.today().strftime('%Y-%m-%d')
 
 st.markdown(f"""
-<div style="font-size: 50px; font-weight: bold; margin-bottom: 10px; line-height: 1.4;">
+<div style="font-size: 40px; font-weight: bold; margin-bottom: 10px; line-height: 1.4;">
     Published International Journal Papers
     <br>
-    <span style="font-size: 16px; font-weight: normal;">
+    <span style="font-size: 40px; font-weight: normal;">
         (<a href="{google_scholar_link}" target="_blank" style="text-decoration: none; color: #0068c9;">Google Scholar</a>)
     </span>
 </div>
@@ -57,26 +57,24 @@ if papers:
         venue = paper.get('venue', 'Journal')
         year = paper.get('year', '')
         
-        # --- LINK LOGIC ---
-        # 1. Try to find DOI
+        # --- LINK & DOI LOGIC ---
         external_ids = paper.get('externalIds', {})
         doi = external_ids.get('DOI')
         
-        # 2. Decide where the Main Title Link goes
         if doi:
-            # If DOI exists, main link goes to the official paper
+            # Main title links to DOI
             main_link = f"https://doi.org/{doi}"
-            doi_text = f"DOI: {doi}" # We can still show text if you want, or hide it since title is clickable
+            # Create a clickable DOI text for the bottom line
+            doi_html = f'• <a href="https://doi.org/{doi}" target="_blank" style="color: #666; text-decoration: none;">DOI: {doi}</a>'
         else:
-            # Fallback to Semantic Scholar URL
             main_link = paper.get('url', '#')
-            doi_text = ""
+            doi_html = ""
 
         # Format Authors
         author_list = [auth.get('name') for auth in paper.get('authors', [])]
         author_str = ", ".join(author_list)
         
-        # --- COMPACT HTML DESIGN ---
+        # --- HTML DESIGN ---
         st.markdown(f"""
         <div style="margin-bottom: 15px;">
             <a href="{main_link}" target="_blank" style="font-size: 18px; font-weight: bold; color: #0068c9; text-decoration: none;">
@@ -86,7 +84,7 @@ if papers:
             <span style="font-size: 16px; color: #333;">{author_str}</span>
             <br>
             <span style="font-size: 14px; color: #666; font-style: italic;">
-                {venue} • {year}
+                {venue} • {year} {doi_html}
             </span>
         </div>
         <hr style="margin: 5px 0; border: none; border-top: 1px solid #f0f0f0;">
